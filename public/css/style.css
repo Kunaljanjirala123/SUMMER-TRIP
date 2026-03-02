@@ -930,6 +930,29 @@ select.form-control {
   transform: scale(1.5);
 }
 
+.receipt-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.receipt-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--lavender-deep);
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--lavender);
+  transition: all var(--duration) var(--ease);
+  white-space: nowrap;
+}
+
+.receipt-link:hover {
+  background: var(--lavender-deep);
+  color: #fff;
+}
+
 /* --- Share --- */
 .share-link-item {
   display: flex;

@@ -71,7 +71,12 @@ function renderTable() {
       <td>${exp.description || '—'}</td>
       <td>${exp.day_title ? `${exp.date} — ${exp.day_title}` : 'General'}</td>
       <td style="font-weight: 600; color: var(--text-primary);">$${exp.amount.toFixed(2)}</td>
-      <td>${exp.receipt_image_path ? `<img class="receipt-thumb" src="${exp.receipt_image_path}" onclick="openLightbox('${exp.receipt_image_path}')" alt="Receipt">` : '—'}</td>
+      <td>${exp.receipt_image_path
+            ? `<div class="receipt-cell">
+             <img class="receipt-thumb" src="${exp.receipt_image_path}" onclick="openLightbox('${exp.receipt_image_path}')" alt="Receipt">
+             <a href="${exp.receipt_image_path}" target="_blank" class="receipt-link" title="Open receipt in new tab">📄 View</a>
+           </div>`
+            : '<span style="color: var(--text-muted);">—</span>'}</td>
       <td><button class="btn btn-danger btn-sm" onclick="deleteExpense(${exp.id})">🗑️</button></td>
     </tr>
   `).join('');
@@ -133,27 +138,38 @@ function setupForm() {
     // File upload UX
     const uploadDiv = document.getElementById('receiptUpload');
     const fileInput = document.getElementById('receiptFile');
+    const cameraDiv = document.getElementById('receiptCamera');
+    const cameraInput = document.getElementById('receiptCameraFile');
+
+    // Track active file (from either upload or camera)
+    let activeReceiptFile = null;
 
     uploadDiv.addEventListener('click', () => fileInput.click());
+    cameraDiv.addEventListener('click', () => cameraInput.click());
 
-    fileInput.addEventListener('change', () => {
-        const file = fileInput.files[0];
-        if (file) {
-            const preview = document.getElementById('receiptPreview');
-            const previewImg = document.getElementById('receiptPreviewImg');
+    function handleFileSelect(file, sourceDiv) {
+        if (!file) return;
+        activeReceiptFile = file;
 
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewImg.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
+        const preview = document.getElementById('receiptPreview');
+        const previewImg = document.getElementById('receiptPreviewImg');
 
-            uploadDiv.innerHTML = `<span class="upload-icon">📎</span><span>${file.name}</span><input type="file" id="receiptFile" accept="image/*,.pdf">`;
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
         }
-    });
+
+        sourceDiv.innerHTML = `<span class="upload-icon">✅</span><span>${file.name}</span>`;
+    }
+
+    fileInput.addEventListener('change', () => handleFileSelect(fileInput.files[0], uploadDiv));
+    cameraInput.addEventListener('change', () => handleFileSelect(cameraInput.files[0], cameraDiv));
 
     // Form submit
     document.getElementById('addExpenseForm').addEventListener('submit', async (e) => {
@@ -168,9 +184,9 @@ function setupForm() {
         const dayVal = document.getElementById('expenseDay').value;
         if (dayVal) formData.append('trip_day_id', dayVal);
 
-        const receiptFile = document.getElementById('receiptFile');
-        if (receiptFile.files[0]) {
-            formData.append('receipt', receiptFile.files[0]);
+        // Attach whichever receipt file was selected
+        if (activeReceiptFile) {
+            formData.append('receipt', activeReceiptFile);
         }
 
         try {
@@ -181,11 +197,18 @@ function setupForm() {
             if (!res.ok) throw new Error('Failed to add expense');
 
             e.target.reset();
+            activeReceiptFile = null;
             document.getElementById('receiptPreview').style.display = 'none';
 
-            // Reset upload area
-            const uploadDiv = document.getElementById('receiptUpload');
-            uploadDiv.innerHTML = `<span class="upload-icon">📷</span><span>Click to upload receipt image</span><input type="file" id="receiptFile" accept="image/*,.pdf">`;
+            // Reset both upload areas
+            uploadDiv.innerHTML = `<span class="upload-icon">📁</span><span>Upload receipt image</span><input type="file" id="receiptFile" accept="image/*,.pdf">`;
+            cameraDiv.innerHTML = `<span class="upload-icon">📷</span><span>Take a photo</span><input type="file" id="receiptCameraFile" accept="image/*" capture="environment">`;
+
+            // Re-bind click + change on new inputs
+            const newFileInput = document.getElementById('receiptFile');
+            const newCameraInput = document.getElementById('receiptCameraFile');
+            newFileInput.addEventListener('change', () => handleFileSelect(newFileInput.files[0], uploadDiv));
+            newCameraInput.addEventListener('change', () => handleFileSelect(newCameraInput.files[0], cameraDiv));
 
             await loadExpenses();
             showToast('💰 Expense added!', 'success');
