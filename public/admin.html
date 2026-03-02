@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Controls — Travel Planner</title>
+    <meta name="description" content="Admin panel for managing travel itinerary">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
+</head>
+
+<body>
+
+    <nav class="nav-bar" id="navbar">
+        <a href="/" class="nav-logo">
+            <span class="logo-icon">🌴</span>
+            <span>Travel Planner</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">📅 <span>Calendar</span></a></li>
+            <li><a href="/admin.html" class="active">⚙️ <span>Admin</span></a></li>
+            <li><a href="/expenses.html">💰 <span>Expenses</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>Admin Controls ⚙️</h1>
+        <p class="subtitle">Manage your trip — add dates, flights, places, and generate share links</p>
+    </div>
+
+    <div class="app-container">
+
+        <!-- Day selector -->
+        <div class="card" style="margin-bottom: 24px;">
+            <h3 style="margin-bottom: 12px;">📋 Select a Day to Manage</h3>
+            <select class="form-control" id="daySelector">
+                <option value="">Select a day...</option>
+            </select>
+        </div>
+
+        <div class="admin-grid">
+
+            <!-- Add New Day -->
+            <div class="admin-panel animate-in">
+                <h3>📅 Add New Day</h3>
+                <form id="addDayForm">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" class="form-control" id="newDayDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" class="form-control" id="newDayTitle" placeholder="e.g. Exploring the City"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea class="form-control" id="newDayNotes"
+                            placeholder="Brief notes about this day..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Day</button>
+                </form>
+            </div>
+
+            <!-- Add Flight -->
+            <div class="admin-panel animate-in">
+                <h3>✈️ Add Flight Ticket</h3>
+                <form id="addFlightForm">
+                    <div class="form-group">
+                        <label>Assigned Day</label>
+                        <select class="form-control" id="flightDay" required>
+                            <option value="">Select day...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Airline</label>
+                        <input type="text" class="form-control" id="flightAirline" placeholder="e.g. Delta Airlines"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>Flight Number</label>
+                        <input type="text" class="form-control" id="flightNumber" placeholder="e.g. DL 1042">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>From</label>
+                            <input type="text" class="form-control" id="flightFrom" placeholder="Departure city"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label>To</label>
+                            <input type="text" class="form-control" id="flightTo" placeholder="Arrival city" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>Departure Time</label>
+                            <input type="text" class="form-control" id="flightDepTime" placeholder="e.g. 08:00 AM">
+                        </div>
+                        <div class="form-group">
+                            <label>Arrival Time</label>
+                            <input type="text" class="form-control" id="flightArrTime" placeholder="e.g. 11:30 AM">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <input type="text" class="form-control" id="flightNotes" placeholder="Optional notes">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Flight</button>
+                </form>
+            </div>
+
+            <!-- Add Place -->
+            <div class="admin-panel animate-in">
+                <h3>📍 Add Place to Visit</h3>
+                <form id="addPlaceForm">
+                    <div class="form-group">
+                        <label>Assigned Day</label>
+                        <select class="form-control" id="placeDay" required>
+                            <option value="">Select day...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control" id="placeName" placeholder="e.g. Statue of Liberty"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" class="form-control" id="placeLocation"
+                            placeholder="e.g. Liberty Island, New York, NY">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" class="form-control" id="placeDuration" placeholder="e.g. 2 hours">
+                    </div>
+                    <div class="form-group">
+                        <label>Google Maps Embed URL</label>
+                        <input type="text" class="form-control" id="placeMapUrl"
+                            placeholder="Paste Google Maps embed URL here">
+                        <small style="color: var(--text-muted); font-size: 0.75rem;">Go to Google Maps → Share → Embed →
+                            Copy the src URL</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea class="form-control" id="placeNotes" placeholder="Tips, reminders, etc."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Place</button>
+                </form>
+            </div>
+
+            <!-- Share Links -->
+            <div class="admin-panel animate-in">
+                <h3>🔗 Share Links</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+                    Generate shareable links with different permission levels. Expenses are never shared.
+                </p>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                    <button class="btn btn-primary btn-sm" id="shareComplete">📋 Complete Itinerary</button>
+                    <button class="btn btn-secondary btn-sm" id="shareCommon">📍 Common Itinerary</button>
+                </div>
+
+                <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Existing Links</h4>
+                <div id="shareLinksListAdmin"></div>
+            </div>
+
+        </div>
+
+        <!-- Existing Items for Selected Day -->
+        <div class="card" style="margin-top: 24px; display: none;" id="selectedDayInfo">
+            <h3 id="selectedDayTitle" style="margin-bottom: 16px;">Day Details</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">✈️ Flights</h4>
+                    <div id="dayFlightsList" class="existing-items"></div>
+                </div>
+                <div>
+                    <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">📍 Places</h4>
+                    <div id="dayPlacesList" class="existing-items"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/js/admin.js"></script>
+</body>
+
+</html>

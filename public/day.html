@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Itinerary — Travel Planner</title>
+    <meta name="description" content="Full daily itinerary with flights, places, and checklist">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
+</head>
+
+<body>
+
+    <nav class="nav-bar" id="navbar">
+        <a href="/" class="nav-logo">
+            <span class="logo-icon">🌴</span>
+            <span>Travel Planner</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">📅 <span>Calendar</span></a></li>
+            <li><a href="/admin.html">⚙️ <span>Admin</span></a></li>
+            <li><a href="/expenses.html">💰 <span>Expenses</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Day Header -->
+    <div class="day-header" id="dayHeader">
+        <a href="/" class="btn btn-soft btn-sm" style="margin-bottom: 16px;">← Back to Calendar</a>
+        <div class="date-badge" id="dateBadge"></div>
+        <h1 id="dayTitle">Loading...</h1>
+        <p id="dayNotes"></p>
+    </div>
+
+    <div class="app-container">
+
+        <!-- Flights Section -->
+        <div class="content-section" id="flightsSection" style="display: none;">
+            <h3 class="section-title">✈️ Flights</h3>
+            <div id="flightsList"></div>
+        </div>
+
+        <!-- Places Section -->
+        <div class="content-section" id="placesSection" style="display: none;">
+            <h3 class="section-title">📍 Places to Visit</h3>
+            <div id="placesList"></div>
+        </div>
+
+        <!-- Checklist Section -->
+        <div class="content-section" id="checklistSection" style="display: none;">
+            <h3 class="section-title">✅ Daily Checklist</h3>
+            <div class="card">
+                <ul class="checklist" id="checklistItems"></ul>
+                <div class="checklist-add">
+                    <input type="text" class="form-control" id="newChecklistItem" placeholder="Add a new task...">
+                    <button class="btn btn-primary btn-sm" id="addChecklistBtn">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day Navigation -->
+        <div class="day-nav" id="dayNav"></div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/js/day.js"></script>
+</body>
+
+</html>

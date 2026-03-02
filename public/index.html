@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mom & Dad Travel Itinerary</title>
+  <meta name="description" content="Family summer trip planning and itinerary dashboard — May to June 2026">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav-bar" id="navbar">
+    <a href="/" class="nav-logo">
+      <span class="logo-icon">🌴</span>
+      <span>Travel Planner</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/" class="active">📅 <span>Calendar</span></a></li>
+      <li><a href="/admin.html">⚙️ <span>Admin</span></a></li>
+      <li><a href="/expenses.html">💰 <span>Expenses</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Mom & Dad Travel Itinerary ✈️</h1>
+    <p class="subtitle">Our summer adventure — beautifully planned, one day at a time</p>
+  </div>
+
+  <div class="app-container">
+    <!-- Calendar Controls -->
+    <div class="calendar-controls">
+      <button class="btn btn-soft btn-sm" id="prevMonth">← Previous</button>
+      <h2 class="calendar-month-title" id="monthTitle"></h2>
+      <button class="btn btn-soft btn-sm" id="nextMonth">Next →</button>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+    <!-- Trip Summary -->
+    <div id="tripSummary" class="card" style="margin-top: 16px; display: none;">
+      <h3 style="margin-bottom: 12px;">📊 Trip Overview</h3>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;" id="summaryBadges"></div>
+    </div>
+  </div>
+
+  <!-- Quick Overview Modal -->
+  <div class="modal-overlay" id="dayModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">Day Title</h2>
+          <div class="modal-date" id="modalDate"></div>
+        </div>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div id="modalContent"></div>
+      <div style="margin-top: 20px; text-align: center;">
+        <a class="btn btn-primary btn-lg" id="modalViewFull">View Full Itinerary →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

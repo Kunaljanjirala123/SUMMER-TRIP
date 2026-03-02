@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Itinerary — Travel Planner</title>
+    <meta name="description" content="Shared travel itinerary view">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
+</head>
+
+<body>
+
+    <nav class="nav-bar">
+        <a href="/" class="nav-logo">
+            <span class="logo-icon">🌴</span>
+            <span>Shared Itinerary</span>
+        </a>
+    </nav>
+
+    <div class="page-header">
+        <h1 id="tripName">Loading...</h1>
+        <p class="subtitle" id="tripDates"></p>
+    </div>
+
+    <div class="app-container">
+        <div class="shared-banner" id="permBanner"></div>
+        <div id="sharedContent"></div>
+        <div id="errorState" class="empty-state" style="display: none;">
+            <div class="empty-icon">🔗</div>
+            <p>This share link is invalid or has expired.</p>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/js/shared.js"></script>
+</body>
+
+</html>
