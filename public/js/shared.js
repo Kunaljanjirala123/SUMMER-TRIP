@@ -1,131 +1,145 @@
-// --- Shared Itinerary View ---
+// --- Shared Itinerary View (Simplified) ---
+
+let tripData = null;
+let currentMonth = null;
+let currentYear = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
 
-    if (!token) {
-        showError();
-        return;
-    }
+  if (!token) { showError(); return; }
 
-    try {
-        const res = await fetch(`/api/share/${token}`);
-        if (!res.ok) throw new Error('Invalid link');
-        const data = await res.json();
-        renderSharedView(data);
-    } catch (err) {
-        showError();
-    }
+  try {
+    const res = await fetch(`/api/share/${token}`);
+    if (!res.ok) throw new Error('Invalid link');
+    tripData = await res.json();
+    initSharedView();
+  } catch (err) {
+    showError();
+  }
 });
 
-function renderSharedView(data) {
-    const { trip, days, permission_level } = data;
+function initSharedView() {
+  const { trip, days, permission_level } = tripData;
 
-    document.getElementById('tripName').textContent = trip.name;
-    document.getElementById('tripDates').textContent = `${formatDate(trip.start_date)} — ${formatDate(trip.end_date)}`;
-    document.title = `${trip.name} — Shared Itinerary`;
+  document.getElementById('tripName').textContent = trip.name;
+  document.getElementById('tripDates').textContent = `${formatDate(trip.start_date)} — ${formatDate(trip.end_date)}`;
+  document.title = `${trip.name} — Shared Itinerary`;
 
-    const levelLabel = permission_level === 'complete'
-        ? '📋 Complete Itinerary — Flights, Places & Checklists'
-        : '📍 Common Itinerary — Places to Visit';
-    document.getElementById('permBanner').textContent = levelLabel;
+  const levelLabel = permission_level === 'complete'
+    ? '📋 Trip Overview — Calendar & Destinations'
+    : '📅 Trip Calendar';
+  document.getElementById('permBanner').textContent = levelLabel;
 
-    const container = document.getElementById('sharedContent');
+  // Default to first month of the trip
+  const startDate = new Date(trip.start_date + 'T00:00:00');
+  currentMonth = startDate.getMonth();
+  currentYear = startDate.getFullYear();
 
-    if (days.length === 0) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><p>No days in this itinerary yet</p></div>`;
-        return;
+  renderSharedView();
+}
+
+function renderSharedView() {
+  const { trip, days, permission_level } = tripData;
+  const container = document.getElementById('sharedContent');
+
+  if (days.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><p>No days in this itinerary yet</p></div>`;
+    return;
+  }
+
+  // Build day lookup by date
+  const daysByDate = {};
+  days.forEach(d => { daysByDate[d.date] = d; });
+
+  // Month nav + Calendar
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+
+  let html = `
+    <div class="month-nav-shared">
+      <button onclick="changeMonth(-1)">← Prev</button>
+      <h3>${monthNames[currentMonth]} ${currentYear}</h3>
+      <button onclick="changeMonth(1)">Next →</button>
+    </div>
+  `;
+
+  // Calendar grid
+  html += `<div class="shared-calendar">`;
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  weekdays.forEach(w => { html += `<div class="shared-cal-header">${w}</div>`; });
+
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div class="shared-cal-day empty"></div>`;
+  }
+
+  // Day cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dayInfo = daysByDate[dateStr];
+    const hasEvent = !!dayInfo;
+
+    html += `<div class="shared-cal-day ${hasEvent ? 'has-event' : ''}">`;
+    html += `<div class="day-num">${d}</div>`;
+    if (hasEvent) {
+      html += `<div class="day-label">${dayInfo.title || ''}</div>`;
     }
+    html += `</div>`;
+  }
+  html += `</div>`;
 
-    container.innerHTML = days.map(day => {
-        let html = `
-      <div class="card animate-in" style="margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-          <div>
-            <h3>${day.title || 'Untitled Day'}</h3>
-            <span style="font-size: 0.85rem; color: var(--text-muted);">${formatDate(day.date)}</span>
-          </div>
-          <span class="badge badge-lavender">${formatDateShort(day.date)}</span>
-        </div>
-        ${day.notes ? `<p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px; font-style: italic;">${day.notes}</p>` : ''}
-    `;
+  // For "complete" permission: show place names at a glance grouped by day
+  if (permission_level === 'complete') {
+    const monthDays = days.filter(d => {
+      const dt = new Date(d.date + 'T00:00:00');
+      return dt.getMonth() === currentMonth && dt.getFullYear() === currentYear;
+    });
 
-        // Flights (complete only)
-        if (permission_level === 'complete' && day.flights && day.flights.length > 0) {
-            html += `<div style="margin-bottom: 12px;">`;
-            day.flights.forEach(f => {
-                html += `
-          <div class="flight-card" style="margin-bottom: 8px;">
-            <div class="flight-icon">✈️</div>
-            <div class="flight-info">
-              <div class="flight-route">${f.departure_city} → ${f.arrival_city}</div>
-              <div class="flight-details">
-                <span>🏷️ ${f.airline} ${f.flight_number || ''}</span>
-                ${f.departure_time ? `<span>🕐 ${f.departure_time} - ${f.arrival_time}</span>` : ''}
-              </div>
-            </div>
-          </div>
-        `;
-            });
-            html += `</div>`;
-        }
-
-        // Places (always shown)
+    if (monthDays.length > 0) {
+      html += `<div class="places-glance"><h3>📍 Destinations at a Glance</h3>`;
+      monthDays.forEach(day => {
         if (day.places && day.places.length > 0) {
-            day.places.forEach(p => {
-                html += `
-          <div class="place-card" style="margin-bottom: 10px;">
-            <div class="place-card-content">
-              <div class="place-name">${p.name}</div>
-              <div class="place-meta">
-                ${p.location ? `<span>📍 ${p.location}</span>` : ''}
-                ${p.duration ? `<span>⏱️ ${p.duration}</span>` : ''}
-              </div>
-              ${p.notes ? `<div class="place-notes">"${p.notes}"</div>` : ''}
-            </div>
-            ${p.map_embed_url ? `<iframe class="place-map" src="${p.map_embed_url}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>` : ''}
-          </div>
-        `;
-            });
+          html += `<div class="day-glance-card">`;
+          html += `<h4>${day.title || 'Untitled'}</h4>`;
+          html += `<div class="date-label">${formatDateShort(day.date)}</div>`;
+          day.places.forEach(p => {
+            html += `<span class="place-chip">📍 ${p.name}</span>`;
+          });
+          html += `</div>`;
         }
+      });
+      html += `</div>`;
+    }
+  }
 
-        // Checklist (complete only)
-        if (permission_level === 'complete' && day.checklist && day.checklist.length > 0) {
-            const done = day.checklist.filter(c => c.is_done).length;
-            html += `
-        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light);">
-          <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">✅ Checklist (${done}/${day.checklist.length})</h4>
-          <ul class="checklist">
-            ${day.checklist.map(c => `
-              <li class="checklist-item ${c.is_done ? 'done' : ''}" style="cursor: default;">
-                <div class="checklist-checkbox">${c.is_done ? '✓' : ''}</div>
-                <span class="checklist-text">${c.text}</span>
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-      `;
-        }
+  container.innerHTML = html;
+}
 
-        html += `</div>`;
-        return html;
-    }).join('');
+function changeMonth(delta) {
+  currentMonth += delta;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  renderSharedView();
 }
 
 function showError() {
-    document.getElementById('tripName').textContent = 'Invalid Link';
-    document.getElementById('tripDates').textContent = '';
-    document.getElementById('permBanner').style.display = 'none';
-    document.getElementById('errorState').style.display = 'block';
+  document.getElementById('tripName').textContent = 'Invalid Link';
+  document.getElementById('tripDates').textContent = '';
+  document.getElementById('permBanner').style.display = 'none';
+  document.getElementById('errorState').style.display = 'block';
 }
 
 function formatDate(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 function formatDateShort(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }

@@ -36,18 +36,22 @@ router.get('/:token', (req, res) => {
 
     const days = db.prepare('SELECT * FROM trip_days WHERE trip_id = ? ORDER BY date').all(link.trip_id);
 
+    // Common: only day date + title (no nested data at all)
+    // Complete: day date + title + place names/locations only
     for (const day of days) {
-        day.places = db.prepare('SELECT * FROM places WHERE trip_day_id = ? ORDER BY sort_order').all(day.id);
+        // Strip notes from shared views
+        delete day.notes;
 
         if (link.permission_level === 'complete') {
-            day.flights = db.prepare('SELECT * FROM flights WHERE trip_day_id = ? ORDER BY departure_time').all(day.id);
-            day.checklist = db.prepare('SELECT * FROM checklist_items WHERE trip_day_id = ? ORDER BY sort_order').all(day.id);
+            // Only return place name and location — nothing else
+            const places = db.prepare('SELECT name, location FROM places WHERE trip_day_id = ? ORDER BY sort_order').all(day.id);
+            day.places = places;
         }
-        // Expenses are NEVER included in shared links
+        // Common gets NO nested data — just date and title
     }
 
     res.json({
-        trip,
+        trip: { name: trip.name, start_date: trip.start_date, end_date: trip.end_date },
         days,
         permission_level: link.permission_level
     });
