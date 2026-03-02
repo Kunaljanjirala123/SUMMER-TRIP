@@ -1,6 +1,6 @@
 // --- Main Dashboard (Calendar) ---
 
-let currentMonth, currentYear, tripData = null;
+let currentMonth, currentYear, tripData = null, currentDayId = null;
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -101,6 +101,7 @@ function renderCalendar() {
 }
 
 async function openDayModal(dayId) {
+    currentDayId = dayId;
     try {
         const res = await fetch(`/api/days/${dayId}`);
         const day = await res.json();
@@ -187,10 +188,52 @@ function setupEventListeners() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
     });
+
+    // Delete day button — show inline confirmation
+    document.getElementById('modalDeleteDay').addEventListener('click', () => {
+        document.getElementById('deleteConfirm').style.display = 'block';
+    });
+
+    // Confirm delete — yes
+    document.getElementById('confirmDeleteYes').addEventListener('click', deleteCurrentDay);
+
+    // Confirm delete — no (cancel)
+    document.getElementById('confirmDeleteNo').addEventListener('click', () => {
+        document.getElementById('deleteConfirm').style.display = 'none';
+    });
 }
 
 function closeModal() {
     document.getElementById('dayModal').classList.remove('active');
+    document.getElementById('deleteConfirm').style.display = 'none';
+    currentDayId = null;
+}
+
+async function deleteCurrentDay() {
+    if (!currentDayId) return;
+
+    try {
+        const res = await fetch(`/api/days/${currentDayId}`, { method: 'DELETE' });
+        if (res.ok) {
+            closeModal();
+            await loadTrip();
+            renderCalendar();
+            showToast('Day deleted successfully!');
+        } else {
+            showToast('Failed to delete day', true);
+        }
+    } catch (err) {
+        console.error('Failed to delete day:', err);
+        showToast('Error deleting day', true);
+    }
+}
+
+function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast' + (isError ? ' error' : ' success');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 function formatDate(dateStr) {

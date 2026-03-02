@@ -36,4 +36,17 @@ router.put('/:id', (req, res) => {
     res.json(day);
 });
 
+// DELETE /api/days/:id — delete a day and all related data
+router.delete('/:id', (req, res) => {
+    const day = db.prepare('SELECT * FROM trip_days WHERE id = ?').get(req.params.id);
+    if (!day) return res.status(404).json({ error: 'Day not found' });
+
+    // Foreign keys with ON DELETE CASCADE handle flights, places, checklist_items
+    // Expenses has ON DELETE SET NULL for trip_day_id, so clean those up too
+    db.prepare('DELETE FROM expenses WHERE trip_day_id = ?').run(req.params.id);
+    db.prepare('DELETE FROM trip_days WHERE id = ?').run(req.params.id);
+
+    res.json({ success: true, deleted: day });
+});
+
 module.exports = router;
