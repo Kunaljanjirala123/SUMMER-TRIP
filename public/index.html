@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mom & Dad Travel Itinerary</title>
   <meta name="description" content="Family summer trip planning and itinerary dashboard — May to June 2026">
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
 </head>
+
 <body>
 
   <!-- Navigation -->
@@ -20,8 +23,10 @@
       <li><a href="/" class="active">📅 <span>Calendar</span></a></li>
       <li><a href="/admin.html">⚙️ <span>Admin</span></a></li>
       <li><a href="/expenses.html">💰 <span>Expenses</span></a></li>
+      <li><a href="#" onclick="logout()" style="color: var(--coral-soft);">🚪 <span>Logout</span></a></li>
     </ul>
   </nav>
+  <script>function logout() { fetch('/api/auth/logout', { method: 'POST' }).then(() => window.location.href = '/login.html') }</script>
 
   <!-- Page Header -->
   <div class="page-header">
@@ -69,4 +74,5 @@
 
   <script src="/js/app.js"></script>
 </body>
+
 </html>

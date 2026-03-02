@@ -22,8 +22,10 @@
             <li><a href="/">📅 <span>Calendar</span></a></li>
             <li><a href="/admin.html">⚙️ <span>Admin</span></a></li>
             <li><a href="/expenses.html" class="active">💰 <span>Expenses</span></a></li>
+            <li><a href="#" onclick="logout()" style="color: var(--coral-soft);">🚪 <span>Logout</span></a></li>
         </ul>
     </nav>
+    <script>function logout() { fetch('/api/auth/logout', { method: 'POST' }).then(() => window.location.href = '/login.html') }</script>
 
     <div class="page-header">
         <h1>Expense Tracker 💰</h1>

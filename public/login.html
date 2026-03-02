@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Travel Planner</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            padding: 40px 36px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .login-icon {
+            font-size: 4rem;
+            margin-bottom: 8px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .login-card h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--text-primary), var(--lavender-deep));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-card .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        .login-form {
+            text-align: left;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 44px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .toggle-password:hover {
+            opacity: 1;
+        }
+
+        .login-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            font-size: 1rem;
+        }
+
+        .error-msg {
+            color: #E06469;
+            font-size: 0.85rem;
+            margin-top: 12px;
+            display: none;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-6px);
+            }
+
+            75% {
+                transform: translateX(6px);
+            }
+        }
+
+        .login-footer {
+            margin-top: 24px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="login-card">
+            <span class="login-icon">🌴</span>
+            <h1>Travel Planner</h1>
+            <p class="subtitle">Enter the family password to continue</p>
+
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" class="form-control" id="password" placeholder="Enter password..."
+                            autofocus required>
+                        <button type="button" class="toggle-password" id="togglePass">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary login-btn">Sign In →</button>
+                <div class="error-msg" id="errorMsg">Incorrect password. Please try again.</div>
+            </form>
+
+            <div class="login-footer">
+                🔒 Protected family travel planner
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // If already logged in, redirect to home
+        fetch('/api/auth/check').then(r => r.json()).then(data => {
+            if (data.authenticated) window.location.href = '/';
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                if (res.ok) {
+                    // Redirect to intended page or home
+                    const params = new URLSearchParams(window.location.search);
+                    window.location.href = params.get('redirect') || '/';
+                } else {
+                    errorMsg.style.display = 'block';
+                    errorMsg.style.animation = 'none';
+                    errorMsg.offsetHeight; // trigger reflow
+                    errorMsg.style.animation = 'shake 0.4s ease';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Connection error. Please try again.';
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        // Toggle password visibility
+        document.getElementById('togglePass').addEventListener('click', () => {
+            const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    </script>
+</body>
+
+</html>
