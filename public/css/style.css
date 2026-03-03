@@ -1369,3 +1369,156 @@ select.form-control {
     transform: translateY(0);
   }
 }
+
+/* ===========================================
+   PRINT STYLES — Clean calendar print output
+   =========================================== */
+@media print {
+
+  /* Remove background decorations and blobs */
+  body::before,
+  body::after {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide non-printable UI elements */
+  .nav-bar,
+  .calendar-controls .btn,
+  .modal-overlay,
+  .toast,
+  #tripSummary,
+  #quickAddModal,
+  #dayModal {
+    display: none !important;
+  }
+
+  /* Page header — lean and centered */
+  .page-header {
+    padding: 10px 0 16px;
+  }
+
+  .page-header h1 {
+    font-size: 1.6rem;
+    background: none !important;
+    -webkit-text-fill-color: #2D2B3D !important;
+    color: #2D2B3D !important;
+  }
+
+  .page-header .subtitle {
+    font-size: 0.85rem;
+    color: #666 !important;
+  }
+
+  /* Calendar controls — show only the month title */
+  .calendar-controls {
+    justify-content: center;
+    margin-bottom: 8px;
+    padding: 8px 0;
+  }
+
+  .calendar-month-title {
+    font-size: 1.2rem;
+  }
+
+  /* Container — full width, no padding */
+  .app-container {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+
+  /* Calendar grid — tighter, solid borders */
+  .calendar-grid {
+    gap: 0 !important;
+    border: 2px solid #333;
+    border-radius: 0;
+    margin-bottom: 12px;
+  }
+
+  .calendar-day-header {
+    padding: 6px 4px;
+    font-size: 0.7rem;
+    background: #f0f0f0 !important;
+    border: 1px solid #ccc;
+    color: #333 !important;
+  }
+
+  .calendar-day {
+    min-height: 64px;
+    padding: 5px 6px;
+    border: 1px solid #ccc !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .calendar-day.empty {
+    background: #fafafa !important;
+    border: 1px solid #e0e0e0 !important;
+  }
+
+  .calendar-day.has-events {
+    background: #f5f0ff !important;
+    border-color: #999 !important;
+    box-shadow: none !important;
+  }
+
+  .calendar-day.today {
+    border: 2px solid #7c5cbf !important;
+    box-shadow: none !important;
+  }
+
+  .calendar-day .day-number {
+    font-size: 0.8rem;
+    color: #333 !important;
+  }
+
+  .calendar-day.has-events .day-number {
+    color: #4a2d8a !important;
+  }
+
+  .calendar-day .day-title {
+    font-size: 0.65rem;
+    color: #4a2d8a !important;
+    margin-top: 2px;
+    -webkit-line-clamp: 2;
+  }
+
+  .calendar-day .day-dots {
+    margin-top: 3px;
+  }
+
+  .calendar-day .dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  /* Hide the "+" hint on blank dates */
+  .calendar-day:not(.empty):not(.has-events)::after {
+    display: none !important;
+  }
+
+  /* Cards — flat for printing */
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+    transform: none !important;
+  }
+
+  /* No hover effects in print */
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Page break rules */
+  .calendar-grid {
+    page-break-inside: avoid;
+  }
+}
