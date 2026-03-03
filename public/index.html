@@ -83,6 +83,27 @@
     </div>
   </div>
 
+  <!-- Quick Add Day Modal -->
+  <div class="modal-overlay" id="quickAddModal">
+    <div class="modal quick-add-modal">
+      <div class="modal-header">
+        <div>
+          <h2>📅 Add Day Name</h2>
+          <div class="modal-date" id="quickAddDate"></div>
+        </div>
+        <button class="modal-close" id="quickAddClose">✕</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label>Day Name</label>
+        <input type="text" class="form-control" id="quickAddTitle" placeholder="e.g. Exploring the City" autofocus>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn btn-soft" id="quickAddCancel">Cancel</button>
+        <button class="btn btn-primary" id="quickAddSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 

@@ -94,9 +94,15 @@ function renderCalendar() {
 
     grid.innerHTML = html;
 
-    // Attach click handlers
-    grid.querySelectorAll('.calendar-day.has-events').forEach(el => {
-        el.addEventListener('click', () => openDayModal(el.dataset.dayId));
+    // Attach click handlers — event days open detail modal, blank days open quick-add
+    grid.querySelectorAll('.calendar-day:not(.empty)').forEach(el => {
+        el.addEventListener('click', () => {
+            if (el.dataset.dayId) {
+                openDayModal(el.dataset.dayId);
+            } else {
+                openQuickAdd(el.dataset.date);
+            }
+        });
     });
 }
 
@@ -186,7 +192,10 @@ function setupEventListeners() {
     });
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Escape') {
+            closeModal();
+            closeQuickAdd();
+        }
     });
 
     // Delete day button — show inline confirmation
@@ -200,6 +209,17 @@ function setupEventListeners() {
     // Confirm delete — no (cancel)
     document.getElementById('confirmDeleteNo').addEventListener('click', () => {
         document.getElementById('deleteConfirm').style.display = 'none';
+    });
+
+    // Quick-add modal events
+    document.getElementById('quickAddClose').addEventListener('click', closeQuickAdd);
+    document.getElementById('quickAddCancel').addEventListener('click', closeQuickAdd);
+    document.getElementById('quickAddSave').addEventListener('click', saveQuickDay);
+    document.getElementById('quickAddModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeQuickAdd();
+    });
+    document.getElementById('quickAddTitle').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') saveQuickDay();
     });
 }
 
@@ -225,6 +245,50 @@ async function deleteCurrentDay() {
     } catch (err) {
         console.error('Failed to delete day:', err);
         showToast('Error deleting day', true);
+    }
+}
+
+// --- Quick Add Day from Calendar ---
+let quickAddDate = null;
+
+function openQuickAdd(dateStr) {
+    quickAddDate = dateStr;
+    document.getElementById('quickAddDate').textContent = formatDate(dateStr);
+    document.getElementById('quickAddTitle').value = '';
+    document.getElementById('quickAddModal').classList.add('active');
+    setTimeout(() => document.getElementById('quickAddTitle').focus(), 100);
+}
+
+function closeQuickAdd() {
+    document.getElementById('quickAddModal').classList.remove('active');
+    quickAddDate = null;
+}
+
+async function saveQuickDay() {
+    const title = document.getElementById('quickAddTitle').value.trim();
+    if (!title) {
+        showToast('Please enter a day name', true);
+        return;
+    }
+    if (!tripData) {
+        showToast('No trip loaded', true);
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/days', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trip_id: tripData.id, date: quickAddDate, title })
+        });
+        if (!res.ok) throw new Error('Failed to add day');
+        closeQuickAdd();
+        await loadTrip();
+        renderCalendar();
+        showToast('📅 Day added successfully!');
+    } catch (err) {
+        console.error('Failed to add day:', err);
+        showToast('Failed to add day', true);
     }
 }
 

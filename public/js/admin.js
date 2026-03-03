@@ -135,6 +135,24 @@ function setupForms() {
         }
     });
 
+    // Save day title
+    document.getElementById('saveDayTitle').addEventListener('click', () => {
+        const sel = document.getElementById('daySelector');
+        if (sel.value) updateDayTitle(sel.value);
+    });
+
+    // Delete day
+    document.getElementById('adminDeleteDay').addEventListener('click', () => {
+        document.getElementById('adminDeleteConfirm').style.display = 'block';
+    });
+    document.getElementById('adminConfirmDeleteYes').addEventListener('click', () => {
+        const sel = document.getElementById('daySelector');
+        if (sel.value) deleteDay(sel.value);
+    });
+    document.getElementById('adminConfirmDeleteNo').addEventListener('click', () => {
+        document.getElementById('adminDeleteConfirm').style.display = 'none';
+    });
+
     // Share buttons
     document.getElementById('shareComplete').addEventListener('click', () => generateShareLink('complete'));
     document.getElementById('shareCommon').addEventListener('click', () => generateShareLink('common'));
@@ -147,7 +165,9 @@ async function loadDayDetails(dayId) {
 
         const container = document.getElementById('selectedDayInfo');
         container.style.display = 'block';
-        document.getElementById('selectedDayTitle').textContent = `${day.title || 'Untitled'} — ${day.date}`;
+        document.getElementById('editDayTitle').value = day.title || '';
+        document.getElementById('editDayDate').textContent = `📅 ${day.date}`;
+        document.getElementById('adminDeleteConfirm').style.display = 'none';
 
         // Flights
         const flightsEl = document.getElementById('dayFlightsList');
@@ -176,6 +196,45 @@ async function loadDayDetails(dayId) {
         }
     } catch (err) {
         console.error(err);
+    }
+}
+
+async function updateDayTitle(dayId) {
+    const newTitle = document.getElementById('editDayTitle').value.trim();
+    if (!newTitle) {
+        showToast('Please enter a title', 'error');
+        return;
+    }
+    try {
+        const res = await fetch(`/api/days/${dayId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle })
+        });
+        if (!res.ok) throw new Error('Failed to update');
+        // Update the local days array and refresh the selectors
+        const idx = days.findIndex(d => d.id == dayId);
+        if (idx !== -1) days[idx].title = newTitle;
+        populateDaySelectors();
+        // Re-select the day in the dropdown
+        document.getElementById('daySelector').value = dayId;
+        showToast('✏️ Day name updated!', 'success');
+    } catch (err) {
+        showToast('Failed to update day name', 'error');
+    }
+}
+
+async function deleteDay(dayId) {
+    try {
+        const res = await fetch(`/api/days/${dayId}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete');
+        days = days.filter(d => d.id != dayId);
+        populateDaySelectors();
+        document.getElementById('selectedDayInfo').style.display = 'none';
+        document.getElementById('daySelector').value = '';
+        showToast('🗑️ Day deleted successfully!', 'success');
+    } catch (err) {
+        showToast('Failed to delete day', 'error');
     }
 }
 

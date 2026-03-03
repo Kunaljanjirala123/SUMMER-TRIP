@@ -1334,3 +1334,38 @@ select.form-control {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
 }
+
+/* --- Quick Add Day Modal --- */
+.quick-add-modal {
+  max-width: 400px;
+}
+
+/* Blank-day click affordance: subtle "+" hint on hover */
+.calendar-day:not(.empty):not(.has-events)::after {
+  content: '+';
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--lavender-deep);
+  opacity: 0;
+  transition: opacity var(--duration) var(--ease);
+}
+
+.calendar-day:not(.empty):not(.has-events):hover::after {
+  opacity: 0.6;
+}
+
+/* fadeIn keyframe (used by confirmation dialogs) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
