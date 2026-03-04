@@ -29,7 +29,7 @@
 
     <div class="page-header">
         <h1>Admin Controls ⚙️</h1>
-        <p class="subtitle">Manage your trip — add dates, flights, places, and generate share links</p>
+        <p class="subtitle">Manage your trip — flights, hotels, rental cars, places & share links</p>
     </div>
 
     <div class="app-container">
@@ -153,6 +153,107 @@
                 </form>
             </div>
 
+            <!-- Add Rental Car -->
+            <div class="admin-panel animate-in">
+                <h3>🚗 Add Rental Car</h3>
+                <form id="addRentalCarForm">
+                    <div class="form-group">
+                        <label>Assigned Day</label>
+                        <select class="form-control" id="rentalCarDay" required>
+                            <option value="">Select day...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" class="form-control" id="rentalCarCompany" placeholder="e.g. Enterprise"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmation Number</label>
+                        <input type="text" class="form-control" id="rentalCarConfirmation" placeholder="e.g. ABC123456">
+                    </div>
+                    <div class="form-group">
+                        <label>Car Type</label>
+                        <input type="text" class="form-control" id="rentalCarType" placeholder="e.g. SUV, Sedan">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>Pick-up Location</label>
+                            <input type="text" class="form-control" id="rentalCarPickup"
+                                placeholder="Airport / Address">
+                        </div>
+                        <div class="form-group">
+                            <label>Drop-off Location</label>
+                            <input type="text" class="form-control" id="rentalCarDropoff"
+                                placeholder="Airport / Address">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>Pick-up Time</label>
+                            <input type="text" class="form-control" id="rentalCarPickupTime"
+                                placeholder="e.g. 10:00 AM">
+                        </div>
+                        <div class="form-group">
+                            <label>Drop-off Time</label>
+                            <input type="text" class="form-control" id="rentalCarDropoffTime"
+                                placeholder="e.g. 06:00 PM">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <input type="text" class="form-control" id="rentalCarNotes" placeholder="Optional notes">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Rental Car</button>
+                </form>
+            </div>
+
+            <!-- Add Hotel -->
+            <div class="admin-panel animate-in">
+                <h3>🏨 Add Hotel</h3>
+                <form id="addHotelForm">
+                    <div class="form-group">
+                        <label>Assigned Day</label>
+                        <select class="form-control" id="hotelDay" required>
+                            <option value="">Select day...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hotel Name</label>
+                        <input type="text" class="form-control" id="hotelName" placeholder="e.g. Marriott Downtown"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmation Number</label>
+                        <input type="text" class="form-control" id="hotelConfirmation" placeholder="e.g. CONF-789012">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" class="form-control" id="hotelAddress" placeholder="Full address">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>Check-in Time</label>
+                            <input type="text" class="form-control" id="hotelCheckIn" placeholder="e.g. 3:00 PM">
+                        </div>
+                        <div class="form-group">
+                            <label>Check-out Time</label>
+                            <input type="text" class="form-control" id="hotelCheckOut" placeholder="e.g. 11:00 AM">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Room Type</label>
+                        <input type="text" class="form-control" id="hotelRoomType"
+                            placeholder="e.g. King Suite, Double">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <input type="text" class="form-control" id="hotelNotes" placeholder="Optional notes">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Hotel</button>
+                </form>
+            </div>
+
             <!-- Share Links -->
             <div class="admin-panel animate-in">
                 <h3>🔗 Share Links</h3>
@@ -202,6 +303,14 @@
                 <div>
                     <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">📍 Places</h4>
                     <div id="dayPlacesList" class="existing-items"></div>
+                </div>
+                <div>
+                    <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">🚗 Rental Cars</h4>
+                    <div id="dayRentalCarsList" class="existing-items"></div>
+                </div>
+                <div>
+                    <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">🏨 Hotels</h4>
+                    <div id="dayHotelsList" class="existing-items"></div>
                 </div>
             </div>
         </div>

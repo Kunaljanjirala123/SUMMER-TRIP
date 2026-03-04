@@ -10,6 +10,8 @@ router.get('/:id', (req, res) => {
     day.flights = db.prepare('SELECT * FROM flights WHERE trip_day_id = ? ORDER BY departure_time').all(day.id);
     day.places = db.prepare('SELECT * FROM places WHERE trip_day_id = ? ORDER BY sort_order').all(day.id);
     day.checklist = db.prepare('SELECT * FROM checklist_items WHERE trip_day_id = ? ORDER BY sort_order').all(day.id);
+    day.rental_cars = db.prepare('SELECT * FROM rental_cars WHERE trip_day_id = ?').all(day.id);
+    day.hotels = db.prepare('SELECT * FROM hotels WHERE trip_day_id = ?').all(day.id);
 
     res.json(day);
 });

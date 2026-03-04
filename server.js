@@ -45,6 +45,8 @@ app.use('/api/flights', requireAuth, require('./routes/flights'));
 app.use('/api/places', requireAuth, require('./routes/places'));
 app.use('/api/checklist', requireAuth, require('./routes/checklist'));
 app.use('/api/expenses', requireAuth, require('./routes/expenses'));
+app.use('/api/rentalcars', requireAuth, require('./routes/rentalcars'));
+app.use('/api/hotels', requireAuth, require('./routes/hotels'));
 
 // Protect HTML pages
 app.get('/', requireAuth, (req, res) => {

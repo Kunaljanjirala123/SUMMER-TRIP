@@ -85,6 +85,33 @@ function initialize() {
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS rental_cars (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      trip_day_id INTEGER NOT NULL,
+      company TEXT NOT NULL,
+      confirmation_number TEXT,
+      car_type TEXT,
+      pickup_location TEXT,
+      dropoff_location TEXT,
+      pickup_time TEXT,
+      dropoff_time TEXT,
+      notes TEXT,
+      FOREIGN KEY (trip_day_id) REFERENCES trip_days(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS hotels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      trip_day_id INTEGER NOT NULL,
+      hotel_name TEXT NOT NULL,
+      confirmation_number TEXT,
+      address TEXT,
+      check_in_time TEXT,
+      check_out_time TEXT,
+      room_type TEXT,
+      notes TEXT,
+      FOREIGN KEY (trip_day_id) REFERENCES trip_days(id) ON DELETE CASCADE
+    );
   `);
 }
 

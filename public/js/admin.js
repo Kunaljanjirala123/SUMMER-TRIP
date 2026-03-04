@@ -27,9 +27,10 @@ async function loadTrip() {
 }
 
 function populateDaySelectors() {
-    const selectors = ['daySelector', 'flightDay', 'placeDay'];
+    const selectors = ['daySelector', 'flightDay', 'placeDay', 'rentalCarDay', 'hotelDay'];
     selectors.forEach(id => {
         const sel = document.getElementById(id);
+        if (!sel) return;
         const firstOpt = sel.querySelector('option');
         sel.innerHTML = '';
         sel.appendChild(firstOpt);
@@ -126,6 +127,67 @@ function setupForms() {
         }
     });
 
+    // Add Rental Car
+    document.getElementById('addRentalCarForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            trip_day_id: parseInt(document.getElementById('rentalCarDay').value),
+            company: document.getElementById('rentalCarCompany').value,
+            confirmation_number: document.getElementById('rentalCarConfirmation').value,
+            car_type: document.getElementById('rentalCarType').value,
+            pickup_location: document.getElementById('rentalCarPickup').value,
+            dropoff_location: document.getElementById('rentalCarDropoff').value,
+            pickup_time: document.getElementById('rentalCarPickupTime').value,
+            dropoff_time: document.getElementById('rentalCarDropoffTime').value,
+            notes: document.getElementById('rentalCarNotes').value
+        };
+
+        try {
+            const res = await fetch('/api/rentalcars', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error('Failed to add rental car');
+            e.target.reset();
+            showToast('🚗 Rental car added successfully!', 'success');
+            const sel = document.getElementById('daySelector');
+            if (sel.value) loadDayDetails(sel.value);
+        } catch (err) {
+            showToast('Failed to add rental car', 'error');
+        }
+    });
+
+    // Add Hotel
+    document.getElementById('addHotelForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            trip_day_id: parseInt(document.getElementById('hotelDay').value),
+            hotel_name: document.getElementById('hotelName').value,
+            confirmation_number: document.getElementById('hotelConfirmation').value,
+            address: document.getElementById('hotelAddress').value,
+            check_in_time: document.getElementById('hotelCheckIn').value,
+            check_out_time: document.getElementById('hotelCheckOut').value,
+            room_type: document.getElementById('hotelRoomType').value,
+            notes: document.getElementById('hotelNotes').value
+        };
+
+        try {
+            const res = await fetch('/api/hotels', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error('Failed to add hotel');
+            e.target.reset();
+            showToast('🏨 Hotel added successfully!', 'success');
+            const sel = document.getElementById('daySelector');
+            if (sel.value) loadDayDetails(sel.value);
+        } catch (err) {
+            showToast('Failed to add hotel', 'error');
+        }
+    });
+
     // Day Selector
     document.getElementById('daySelector').addEventListener('change', (e) => {
         if (e.target.value) {
@@ -194,6 +256,32 @@ async function loadDayDetails(dayId) {
         } else {
             placesEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No places</div>';
         }
+
+        // Rental Cars
+        const carsEl = document.getElementById('dayRentalCarsList');
+        if (day.rental_cars && day.rental_cars.length > 0) {
+            carsEl.innerHTML = day.rental_cars.map(c => `
+        <div class="existing-item">
+          <span>${c.company}${c.confirmation_number ? ' — ' + c.confirmation_number : ''}${c.car_type ? ' (' + c.car_type + ')' : ''}</span>
+          <button class="btn btn-danger btn-sm" onclick="deleteRentalCar(${c.id})">✕</button>
+        </div>
+      `).join('');
+        } else {
+            carsEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No rental cars</div>';
+        }
+
+        // Hotels
+        const hotelsEl = document.getElementById('dayHotelsList');
+        if (day.hotels && day.hotels.length > 0) {
+            hotelsEl.innerHTML = day.hotels.map(h => `
+        <div class="existing-item">
+          <span>${h.hotel_name}${h.confirmation_number ? ' — ' + h.confirmation_number : ''}</span>
+          <button class="btn btn-danger btn-sm" onclick="deleteHotel(${h.id})">✕</button>
+        </div>
+      `).join('');
+        } else {
+            hotelsEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No hotels</div>';
+        }
     } catch (err) {
         console.error(err);
     }
@@ -212,11 +300,9 @@ async function updateDayTitle(dayId) {
             body: JSON.stringify({ title: newTitle })
         });
         if (!res.ok) throw new Error('Failed to update');
-        // Update the local days array and refresh the selectors
         const idx = days.findIndex(d => d.id == dayId);
         if (idx !== -1) days[idx].title = newTitle;
         populateDaySelectors();
-        // Re-select the day in the dropdown
         document.getElementById('daySelector').value = dayId;
         showToast('✏️ Day name updated!', 'success');
     } catch (err) {
@@ -260,6 +346,28 @@ async function deletePlace(id) {
     }
 }
 
+async function deleteRentalCar(id) {
+    try {
+        await fetch(`/api/rentalcars/${id}`, { method: 'DELETE' });
+        showToast('🚗 Rental car removed', 'success');
+        const sel = document.getElementById('daySelector');
+        if (sel.value) loadDayDetails(sel.value);
+    } catch (err) {
+        showToast('Failed to delete rental car', 'error');
+    }
+}
+
+async function deleteHotel(id) {
+    try {
+        await fetch(`/api/hotels/${id}`, { method: 'DELETE' });
+        showToast('🏨 Hotel removed', 'success');
+        const sel = document.getElementById('daySelector');
+        if (sel.value) loadDayDetails(sel.value);
+    } catch (err) {
+        showToast('Failed to delete hotel', 'error');
+    }
+}
+
 async function generateShareLink(level) {
     try {
         const res = await fetch('/api/share', {
@@ -270,7 +378,6 @@ async function generateShareLink(level) {
         const data = await res.json();
         const fullUrl = `${window.location.origin}${data.url}`;
 
-        // Copy to clipboard
         try {
             await navigator.clipboard.writeText(fullUrl);
             showToast(`🔗 ${level === 'complete' ? 'Complete' : 'Common'} share link copied to clipboard!`, 'success');
